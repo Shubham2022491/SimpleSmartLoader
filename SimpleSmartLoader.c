@@ -14,11 +14,11 @@ double tot_internal_frag;
 
 void handle_segv(int signo,siginfo_t *si, void *context) {
   if (signo == SIGSEGV) {
-    printf("Segmentation fault handled\n");
-    printf("si_signo: %d\n", si->si_signo);
-    printf("si_errno: %d\n", si->si_errno);
-    printf("si_code: %d\n", si->si_code);
-    printf("si_addr: %p\n", si->si_addr);
+    // printf("Segmentation fault handled\n");
+    // printf("si_signo: %d\n", si->si_signo);
+    // printf("si_errno: %d\n", si->si_errno);
+    // printf("si_code: %d\n", si->si_code);
+    // printf("si_addr: %p\n", si->si_addr);
     page_faults++;
 
 
@@ -30,8 +30,8 @@ void handle_segv(int signo,siginfo_t *si, void *context) {
     Elf32_Word p_memsz = 0;
     size_t page_size = 4096; // 4KB,
     while (i < ehdr->e_phnum) {
-      printf("phdr[i].p_vaddr: 0x%08X\n", phdr[i].p_vaddr);
-      printf("si->si_addr: 0x%08X\n", (uintptr_t)si->si_addr);
+      // printf("phdr[i].p_vaddr: 0x%08X\n", phdr[i].p_vaddr);
+      // printf("si->si_addr: 0x%08X\n", (uintptr_t)si->si_addr);
      //   if ((uintptr_t)phdr[i].p_vaddr == (uintptr_t)si->si_addr) {
       p_memsz = phdr[i].p_memsz;
       uintptr_t sum = (uintptr_t)phdr[i].p_vaddr + p_memsz;
@@ -44,9 +44,9 @@ void handle_segv(int signo,siginfo_t *si, void *context) {
     }
 
     size_t aligned_memsz = (p_memsz + page_size - 1) & ~(page_size - 1);
-    printf("aligned_memsz: %zu\n", aligned_memsz);
-    printf("p_memsz: %u\n", p_memsz);
-    printf("page_size: %u\n", page_size);
+    // printf("aligned_memsz: %zu\n", aligned_memsz);
+    // printf("p_memsz: %u\n", p_memsz);
+    // printf("page_size: %u\n", page_size);
     tot_page_alloc += aligned_memsz/4096;
     //double internal_fragmentation = (((double)(aligned_memsz-p_memsz))/(double)p_mems
     tot_internal_frag += ((double)(aligned_memsz-p_memsz))/1000;
@@ -116,7 +116,7 @@ void load_and_run_elf(char** argv) {
 
   // 6. Call the "_start" method and print the value returned from the "_start"
   int result = _start();
-  printf("Check1 pass\n");
+  // printf("Check1 pass\n");
   printf("User _start return value = %d\n",result);
 }
 
