@@ -8,6 +8,9 @@ void *entry_address;
 off_t filesize;
 void *virtual_mem;
 Elf32_Phdr *entry_segment;
+int page_faults;
+int tot_page_alloc;
+double tot_internal_frag;
 
 void handle_segv(int signo,siginfo_t *si, void *context) {
   if (signo == SIGSEGV) {
@@ -16,6 +19,7 @@ void handle_segv(int signo,siginfo_t *si, void *context) {
     printf("si_errno: %d\n", si->si_errno);
     printf("si_code: %d\n", si->si_code);
     printf("si_addr: %p\n", si->si_addr);
+    page_faults++;
 
 
     
@@ -43,6 +47,9 @@ void handle_segv(int signo,siginfo_t *si, void *context) {
     printf("aligned_memsz: %zu\n", aligned_memsz);
     printf("p_memsz: %u\n", p_memsz);
     printf("page_size: %u\n", page_size);
+    tot_page_alloc += aligned_memsz/4096;
+    //double internal_fragmentation = (((double)(aligned_memsz-p_memsz))/(double)p_mems
+    tot_internal_frag += ((double)(aligned_memsz-p_memsz))/1000;
 
 
     // 3. Allocate memory of the size "p_memsz" using mmap function and then copy the segment content
@@ -119,11 +126,17 @@ int main(int argc, char** argv)
     printf("Usage: %s <ELF Executable> \n",argv[0]);
     exit(1);
   }
+  page_faults = 0;
+  tot_page_alloc = 0;
+  tot_internal_frag = 0;
   
   // 1. carry out necessary checks on the input ELF file
   // 2. passing it to the loader for carrying out the loading/execution
   load_and_run_elf(argv);
-  // 3. invoke the cleanup routine inside the loader  
+  // 3. invoke the cleanup routine inside the loader 
+  printf("Total no. of page faults : %d\n",page_faults); 
+  printf("Total page allocations : %d\n",tot_page_alloc);
+  printf("Total internal fragmentation : %.3lf KB\n ",tot_internal_frag);
   loader_cleanup();
   return 0;
 }
